@@ -69,6 +69,16 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <!-- Navbar buttons -->
+                <li class="nav-item">
+                    <a class="btn btn-outline-light me-2" href="{% url 'home' %}">Survey Tower</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-light me-2" href="{% url 'view_towers' %}">Locate Tower</a>
+                </li>
+            </ul>
+
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
@@ -88,8 +98,7 @@
 
 <!-- Main Content -->
 <div class="container-main">
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
 </div>
 
 <!-- Footer -->
