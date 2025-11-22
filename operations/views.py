@@ -80,6 +80,7 @@ def towers_by_province(request, province_id):
             "name": t.tower.name,
             "latitude": t.latitude,
             "longitude": t.longitude,
+            "contact": t.contact,
             "picture_url": t.picture.url
         }
         for t in towers

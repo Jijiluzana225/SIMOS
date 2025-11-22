@@ -35,8 +35,10 @@ class TowerPin(models.Model):
 
     latitude = models.FloatField()
     longitude = models.FloatField()
+    contact = models.CharField(max_length=250,null=True, blank=True)
     remarks = models.TextField(blank=True)
     picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+    picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')    
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
