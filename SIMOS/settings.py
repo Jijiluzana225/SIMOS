@@ -76,10 +76,21 @@ WSGI_APPLICATION = 'SIMOS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # Use PostgreSQL
+        'NAME': 'railway',  # Replace with your database name
+        'USER': 'postgres',  # Replace with your PostgreSQL user
+        'PASSWORD': 'chsSApGtdBHgrzvMSvLVvmRNHSKZTrve',  # Replace with your PostgreSQL password               
+        'HOST': 'yamanote.proxy.rlwy.net',  # For local development, use 'localhost'
+        'PORT': '42003',  # Default PostgreSQL port
     }
 }
 
