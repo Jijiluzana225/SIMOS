@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Towers by Province</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+    <h2 class="mb-4 text-center">View Towers by Province</h2>
+
+    <div class="form-container">
+        <form id="filterForm">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="provinceSelect">Province</label>
+                    <select id="provinceSelect" class="form-select">
+                        <option value="">Select Province</option>
+                        {% for province in provinces %}
+                        <option value="{{ province.id }}">{{ province.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="towerSelect">Tower</label>
+                    <select id="towerSelect" class="form-select">
+                        <option value="">Select Tower</option>
+                        <!-- Towers will be dynamically populated based on province -->
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="map"></div>
+</div>
+
+<!-- Google Maps JS -->
+<script>
+let map;
+let directionsService;
+let directionsRenderer;
+let userMarker;
+let towerMarker;
+
+function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 6,
+        center: {lat: 12.8797, lng: 121.7740} // Philippines center
+    });
+
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+
+    // Detect user location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                let userPos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                map.setCenter(userPos);
+                map.setZoom(14);
+
+                userMarker = new google.maps.Marker({
+                    position: userPos,
+                    map: map,
+                    title: "Your Location",
+                    icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                    label: {
+                        text: "You are here",
+                        color: "white",
+                        fontWeight: "bold",
+                        fontSize: "12px"
+                    }
+                });
+
+                window.userLocation = userPos; // store for directions
+            },
+            function(err) {
+                console.warn("Geolocation failed.");
+            }
+        );
+    }
+
+    // Event: Province selection changes towers
+    const provinceSelect = document.getElementById("provinceSelect");
+    const towerSelect = document.getElementById("towerSelect");
+
+    provinceSelect.addEventListener("change", function() {
+        const provinceId = this.value;
+
+        // Clear tower dropdown
+        towerSelect.innerHTML = "<option value=''>Select Tower</option>";
+
+        if (!provinceId) return;
+
+        // Fetch towers via endpoint
+        fetch(`/api/towers_by_province/${provinceId}/`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(tower => {
+                const opt = document.createElement("option");
+                opt.value = JSON.stringify({lat: tower.latitude, lng: tower.longitude});
+                opt.textContent = tower.name;
+                towerSelect.appendChild(opt);
+            });
+        });
+    });
+
+    // Event: Tower selection
+    towerSelect.addEventListener("change", function() {
+        if (towerMarker) towerMarker.setMap(null);
+        directionsRenderer.set('directions', null);
+
+        const val = this.value;
+        if (!val || !window.userLocation) return;
+
+        const towerPos = JSON.parse(val);
+
+        towerMarker = new google.maps.Marker({
+            position: towerPos,
+            map: map,
+            title: "Tower",
+            icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+            label: {
+                text: "Tower",
+                color: "blue",
+                fontWeight: "bold",
+                fontSize: "12px"
+            }
+        });
+
+        map.setCenter(towerPos);
+        map.setZoom(14);
+
+        // Show directions
+        directionsService.route({
+            origin: window.userLocation,
+            destination: towerPos,
+            travelMode: 'DRIVING'
+        }, function(response, status) {
+            if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+            } else {
+                alert('Directions request failed due to ' + status);
+            }
+        });
+    });
+}
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp38ahRHi7YSU7iDITGyvJSHT6uo8-RFE&callback=initMap&v=weekly" 
+        async defer></script>
+<script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
