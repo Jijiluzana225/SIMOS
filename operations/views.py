@@ -67,10 +67,11 @@ def location(request):
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Province, TowerPin
-
 def view_towers(request):
     provinces = Province.objects.all()
-    return render(request, "operations/view_towers.html", {"provinces": provinces})
+    can_survey = request.user.is_authenticated and request.user.groups.filter(name="BICTO").exists()
+    return render(request, "operations/view_towers.html", {"provinces": provinces, "can_survey": can_survey})
+
 
 # API endpoint to fetch towers for a specific province
 def towers_by_province(request, province_id):
@@ -87,3 +88,9 @@ def towers_by_province(request, province_id):
         for t in towers
     ]
     return JsonResponse(data, safe=False)
+
+def landing_page(request):
+    """
+    Display the landing page with login/dashboard button.
+    """
+    return render(request, "operations/landing.html")

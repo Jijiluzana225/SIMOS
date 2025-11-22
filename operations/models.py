@@ -30,8 +30,20 @@ from django.contrib.auth.models import User
 from django.db import models
 from cloudinary_storage.storage import MediaCloudinaryStorage
 # other imports...
-
 class TowerPin(models.Model):
+
+    STATUS_CHOICES = [
+        ("Scheduled", "Scheduled"),
+        ("Rescheduled", "Rescheduled"),
+        ("Surveyed", "Surveyed"),
+        ("On Going Construction", "On Going Construction"),
+        ("Instrumentation", "Instrumentation"),
+        ("Completed", "Completed"),
+        ("Up and Running", "Up and Running"),
+        ("For Repair", "For Repair"),
+        ("Up but Standby", "Up but Standby"),
+    ]
+
     tower = models.OneToOneField(Tower, on_delete=models.CASCADE)
     province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
@@ -44,9 +56,16 @@ class TowerPin(models.Model):
     picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
     picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
 
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # new field
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    status = models.CharField(
+        max_length=50,
+        choices=STATUS_CHOICES,
+        default="Surveyed"
+    )
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.tower.name} ({self.latitude}, {self.longitude})"
+        return f"{self.province.name} - {self.tower.name} "
+

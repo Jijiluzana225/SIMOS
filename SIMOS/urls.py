@@ -8,7 +8,8 @@ from django.contrib.auth.views import LoginView, LogoutView  # <-- Add this line
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
+    path('', views.landing_page, name='landing_page'),
+    path('survey/', views.home, name='home'),
     path('view-towers/', views.view_towers, name='view_towers'),
     path('location/', views.location, name='location'),
     path('add/', views.add_pin, name='add_pin'),
