@@ -5,113 +5,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIMOS - Site Monitoring System</title>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
+        /* MOBILE FIRST DESIGN */
         body {
             font-family: "Inter", sans-serif;
             background: linear-gradient(to right, #1e3a8a, #2563eb);
             color: #fff;
-            height: 100vh;
             margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             text-align: center;
-            overflow: hidden;
+            overflow-y: auto; /* ENABLE SCROLL */
+            padding: 20px 0;
         }
 
         .landing-container {
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 60px 40px;
+            background-color: rgba(0, 0, 0, 0.45);
+            padding: 40px 25px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            max-width: 500px;
-            width: 90%;
+            width: 100%;
+            max-width: 450px;
+            margin: auto;
             animation: fadeIn 1.5s ease-in-out;
         }
 
-        .landing-container img.logo {
-            width: 80px;
-            margin-bottom: 20px;
-            animation: fadeInDown 1s ease-in-out;
-        }
-
         .landing-container h1 {
-            font-size: 3rem;
+            font-size: 2.2rem;
             font-weight: 700;
             margin-bottom: 10px;
             animation: fadeInUp 1s ease-in-out;
         }
 
         .landing-container p {
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: #e2e8f0;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             animation: fadeInUp 1.2s ease-in-out;
         }
 
-        .landing-container .btn-primary {
+        .btn-primary {
             background-color: #fbbf24;
             border-color: #fbbf24;
             color: #1e3a8a;
             font-weight: 600;
-            padding: 12px 30px;
-            border-radius: 50px;
+            padding: 10px 25px;
+            border-radius: 40px;
+            margin: 6px; /* SPACING BETWEEN BUTTONS */
             transition: 0.3s;
             animation: fadeInUp 1.4s ease-in-out;
-            margin: 5px; /* Added spacing between buttons */
+            width: 100%; /* FULL WIDTH ON MOBILE */
+            max-width: 280px;
         }
 
-        .landing-container .btn-primary:hover {
+        .btn-primary:hover {
             background-color: #f59e0b;
             border-color: #f59e0b;
             color: #fff;
         }
 
         footer {
-            margin-top: 30px;
-            font-size: 0.9rem;
+            margin-top: 25px;
+            font-size: 0.85rem;
             color: #cbd5e1;
-            animation: fadeInUp 1.6s ease-in-out;
         }
 
         /* Animations */
-        @keyframes fadeIn {
-            from {opacity: 0;}
-            to {opacity: 1;}
-        }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        @keyframes fadeInUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+        @keyframes fadeInDown { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
 
-        @keyframes fadeInUp {
-            from {opacity: 0; transform: translateY(20px);}
-            to {opacity: 1; transform: translateY(0);}
-        }
-
-        @keyframes fadeInDown {
-            from {opacity: 0; transform: translateY(-20px);}
-            to {opacity: 1; transform: translateY(0);}
-        }
-
-        /* Mobile adjustments */
-        @media (max-width: 576px) {
+        /* DESKTOP SCREENS */
+        @media (min-width: 768px) {
+            .landing-container {
+                padding: 60px 40px;
+            }
             .landing-container h1 {
-                font-size: 2.2rem;
+                font-size: 3rem;
             }
             .landing-container p {
-                font-size: 1rem;
+                font-size: 1.2rem;
             }
-            .landing-container img.logo {
-                width: 60px;
+            .btn-primary {
+                font-size: 1rem;
+                padding: 12px 35px;
+                width: auto; /* NORMAL WIDTH ON DESKTOP */
             }
         }
     </style>
 </head>
+
 <body>
     <div class="landing-container">
-        <!-- Logo / Icon -->
-       
 
-        <!-- Title and Subtitle -->
         <h1>SIMOS</h1>
         <p>Site Monitoring System</p>
 
@@ -128,11 +116,13 @@
         {% else %}
             <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
         {% endif %}
+
         <a href="{% url 'view_towers' %}" class="btn btn-primary">Site Locator</a>
-        <!-- Footer -->
+
         <footer>
             Powered by: <strong>AlhaN Technology</strong>
         </footer>
+
     </div>
 
     <!-- Bootstrap JS -->
