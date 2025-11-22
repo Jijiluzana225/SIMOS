@@ -79,7 +79,8 @@ def towers_by_province(request, province_id):
             "id": t.id,
             "name": t.tower.name,
             "latitude": t.latitude,
-            "longitude": t.longitude
+            "longitude": t.longitude,
+            "picture_url": t.picture.url
         }
         for t in towers
     ]
