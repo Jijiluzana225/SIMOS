@@ -1,0 +1,138 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Site Monitoring System (SIMOS)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f4ff, #dbeafe);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Inter", sans-serif;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 35px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-container img.logo {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-weight: 700;
+            font-size: 1.7rem;
+            color: #1e293b;
+            margin-bottom: 25px;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, #4f46e5, #6366f1);
+            border: none;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(90deg, #6366f1, #4f46e5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            color: #334155;
+        }
+
+        .powered {
+            margin-top: 18px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 25px 20px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .btn-login {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <!-- Logo -->
+   
+
+
+
+    <h2>Site Monitoring System (SIMOS)</h2>
+
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <!-- Username -->
+        <input type="text" name="username" class="form-control" placeholder="Username" required>
+
+        <!-- Password -->
+        <input type="password" name="password" class="form-control" placeholder="Password" required>
+
+        <!-- Remember Me -->
+        <label class="remember-me">
+            <input type="checkbox" name="remember"> Remember Me
+        </label>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-login">Login</button>
+    </form>
+
+    <div class="powered">
+        Powered by: <strong>AlhaN Technology</strong>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

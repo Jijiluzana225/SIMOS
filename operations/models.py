@@ -26,6 +26,10 @@ class Tower(models.Model):
 
     def __str__(self):
         return self.name
+from django.contrib.auth.models import User
+from django.db import models
+from cloudinary_storage.storage import MediaCloudinaryStorage
+# other imports...
 
 class TowerPin(models.Model):
     tower = models.OneToOneField(Tower, on_delete=models.CASCADE)
@@ -35,10 +39,12 @@ class TowerPin(models.Model):
 
     latitude = models.FloatField()
     longitude = models.FloatField()
-    contact = models.CharField(max_length=250,null=True, blank=True)
+    contact = models.CharField(max_length=250, null=True, blank=True)
     remarks = models.TextField(blank=True)
     picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
-    picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')    
+    picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # new field
 
     timestamp = models.DateTimeField(auto_now_add=True)
 

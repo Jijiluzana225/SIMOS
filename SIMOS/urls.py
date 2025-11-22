@@ -3,6 +3,8 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from operations import views
+from django.contrib.auth.views import LoginView, LogoutView  # <-- Add this line
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -11,6 +13,8 @@ urlpatterns = [
     path('location/', views.location, name='location'),
     path('add/', views.add_pin, name='add_pin'),
     path('api/towers_by_province/<int:province_id>/', views.towers_by_province, name='towers_by_province'),
+    path('login/', LoginView.as_view(template_name='operations/login.html'), name='login'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
 ]
 
 if settings.DEBUG:

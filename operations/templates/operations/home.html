@@ -1,122 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Tower Mapping</title>
+{% extends 'operations/base.html' %}
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block title %}Dashboard - SIMOS{% endblock %}
 
-    <style>
-        body {
-            background-color: #f1f4f9;
-            margin: 0;
-            padding: 0;
-            font-family: "Inter", sans-serif;
-        }
+{% block content %}
+<div class="container-main my-4">
+    <h2 class="text-center mb-4">📡 Tower Mapping & Location Pinning</h2>
 
-        /* Map */
-        #map {
-            width: 100%;
-            height: 65vh; /* More height on mobile */
-            border-radius: 14px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-        }
+    <div id="map" class="mb-4" style="width:100%; height:65vh; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.15);"></div>
 
-        @media (min-width: 992px) {
-            #map {
-                height: 450px;
-            }
-        }
-
-        /* Form wrapper */
-        .form-container {
-            background-color: white;
-            padding: 25px;
-            margin-top: 25px;
-            margin-bottom: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 22px rgba(0,0,0,0.12);
-        }
-
-        /* Title Styles */
-        h2 {
-            font-weight: 800;
-            font-size: 1.8rem;
-            color: #1e293b;
-            margin-bottom: 18px;
-        }
-
-        h3 {
-            font-weight: 700;
-            color: #1e293b;
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-        }
-
-        /* Labels */
-        label {
-            font-weight: 700;
-            color: #334155;
-            font-size: 1rem;
-            margin-bottom: 6px;
-        }
-
-        /* Form Fields */
-        input, select, textarea {
-            border-radius: 12px !important;
-            padding: 12px !important;
-            font-size: 1rem !important;
-            border: 1px solid #cbd5e1 !important;
-        }
-
-        /* Submit Button */
-        .btn-primary {
-            padding: 14px;
-            font-size: 1.15rem;
-            font-weight: 700;
-            border-radius: 12px;
-            background: linear-gradient(90deg, #4f46e5, #6366f1);
-            border: none;
-            transition: 0.3s;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(90deg, #6366f1, #4f46e5);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-        }
-
-        /* Maximize spacing */
-        .container {
-            padding-left: 15px;
-            padding-right: 15px;
-        }
-
-        .form-container p {
-            margin-bottom: 18px !important;
-        }
-
-    </style>
-
-</head>
-<body>
-
-<div class="container my-4">
-    <h2 class="text-center">📡 Tower Mapping & Location Pinning</h2>
-
-    <div id="map" class="mb-4"></div>
-
-    <div class="form-container">
-        <h3>Add New Tower Pin</h3>
+    <!-- Form Container -->
+    <div class="form-container p-4 bg-white rounded shadow-sm">
+        <h3 class="mb-3">Add New Tower Pin</h3>
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
 
-            <button type="submit" class="btn btn-primary w-100 mt-3">
-                Save Tower Pin
-            </button>
+          <div class="mb-3">
+    {{ form.tower.label_tag }}
+    {{ form.tower }}
+</div>
+
+<div class="mb-3">
+    {{ form.province.label_tag }}
+    {{ form.province }}
+</div>
+
+<div class="mb-3">
+    {{ form.city.label_tag }}
+    {{ form.city }}
+</div>
+
+<div class="mb-3">
+    {{ form.barangay.label_tag }}
+    {{ form.barangay }}
+</div>
+
+<div class="mb-3">
+    {{ form.latitude.label_tag }}
+    {{ form.latitude }}
+</div>
+
+<div class="mb-3">
+    {{ form.longitude.label_tag }}
+    {{ form.longitude }}
+</div>
+
+<div class="mb-3">
+    {{ form.contact.label_tag }}
+    {{ form.contact }}
+</div>
+<div class="mb-3">
+    {{ form.remarks.label_tag }}
+    {{ form.remarks }}
+</div>
+
+<div class="mb-3">
+    {{ form.picture.label_tag }}
+    {{ form.picture }}
+</div>
+
+<div class="mb-3">
+    {{ form.picture1.label_tag }}
+    {{ form.picture1 }}
+</div>
+
+<button type="submit" class="btn btn-primary w-100 mt-3">Save Tower Pin</button>
+
         </form>
     </div>
 </div>
@@ -157,56 +106,42 @@ function initMap() {
             "<p style='margin-top:6px;font-size:14px;'>" + pin.remarks + "</p>";
 
         var info = new google.maps.InfoWindow({ content: content });
-
-        marker.addListener("click", function () {
-            info.open(map, marker);
-        });
+        marker.addListener("click", function () { info.open(map, marker); });
     });
 
     // Detect device location
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                var userPos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var userPos = { lat: position.coords.latitude, lng: position.coords.longitude };
+            map.setCenter(userPos);
+            map.setZoom(14);
 
-                map.setCenter(userPos);
-                map.setZoom(14);
+            window.deviceMarker = new google.maps.Marker({
+                position: userPos,
+                map: map,
+                icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            });
 
-                window.deviceMarker = new google.maps.Marker({
-                    position: userPos,
-                    map: map,
-                    icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
-                });
+            var info = new google.maps.InfoWindow({
+                content: "<b>You are here</b><br><small>Lat:</small> " + userPos.lat + "<br><small>Lng:</small> " + userPos.lng
+            });
 
-                var info = new google.maps.InfoWindow({
-                    content:
-                        "<b>You are here</b><br>" +
-                        "<small>Lat:</small> " + userPos.lat + "<br>" +
-                        "<small>Lng:</small> " + userPos.lng
-                });
+            window.deviceMarker.addListener("click", () => info.open(map, window.deviceMarker));
 
-                window.deviceMarker.addListener("click", () => info.open(map, window.deviceMarker));
-
-                // Auto-fill form
-                document.getElementById("id_latitude").value = userPos.lat;
-                document.getElementById("id_longitude").value = userPos.lng;
-            }
-        );
+            // Auto-fill form
+            document.getElementById("id_latitude").value = userPos.lat;
+            document.getElementById("id_longitude").value = userPos.lng;
+        });
     }
 
     // Click map to auto-fill
     map.addListener("click", function(event) {
         var lat = event.latLng.lat();
         var lng = event.latLng.lng();
-
         document.getElementById("id_latitude").value = lat;
         document.getElementById("id_longitude").value = lng;
 
         if (window.clickMarker) window.clickMarker.setMap(null);
-
         window.clickMarker = new google.maps.Marker({
             position: event.latLng,
             map: map,
@@ -218,9 +153,4 @@ function initMap() {
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp38ahRHi7YSU7iDITGyvJSHT6uo8-RFE&callback=initMap&v=weekly"
         async defer></script>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+{% endblock %}

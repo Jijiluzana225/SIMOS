@@ -25,16 +25,17 @@ from .forms import TowerPinForm
 
 def home(request):
     pins = TowerPin.objects.all()
-
     if request.method == "POST":
         form = TowerPinForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect("/")
+            tower_pin = form.save(commit=False)
+            tower_pin.created_by = request.user  # set the current user
+            tower_pin.save()
     else:
         form = TowerPinForm()
 
     return render(request, "operations/home.html", {"pins": pins, "form": form})
+
 
 # views.py
 from django.http import JsonResponse
