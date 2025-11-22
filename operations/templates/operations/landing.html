@@ -60,6 +60,7 @@
             border-radius: 50px;
             transition: 0.3s;
             animation: fadeInUp 1.4s ease-in-out;
+            margin: 5px; /* Added spacing between buttons */
         }
 
         .landing-container .btn-primary:hover {
@@ -114,28 +115,20 @@
         <h1>SIMOS</h1>
         <p>Site Monitoring System</p>
 
-       
-
         {% if user.is_authenticated %}
-    <p>Welcome, {{ user.username }}!</p>
+            <p>Welcome, {{ user.username }}!</p>
 
-    {% if user.groups.all %} {# Check if the user has any groups #}
-        {% for group in user.groups.all %}
-            {% if group.name == 'BICTO' %}
-                 <a href="{% url 'home' %}" class="btn btn-primary">Survey Tower</a>
+            {% if user.groups.all %}
+                {% for group in user.groups.all %}
+                    {% if group.name == 'BICTO' %}
+                        <a href="{% url 'home' %}" class="btn btn-primary">Survey Tower</a>
+                    {% endif %}
+                {% endfor %}
             {% endif %}
-        {% endfor %}
-    
-
-{% else %}
-    
-{% endif %}
-<a href="{% url 'view_towers' %}" class="btn btn-primary">Site Locator</a>
-           
         {% else %}
             <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
         {% endif %}
- 
+        <a href="{% url 'view_towers' %}" class="btn btn-primary">Site Locator</a>
         <!-- Footer -->
         <footer>
             Powered by: <strong>AlhaN Technology</strong>
