@@ -59,12 +59,16 @@
     <div id="map"></div>
 </div>
 
-<!-- Google Maps JS -->
+<!-- inside the container, below the map -->
+<div class="text-center mb-3">
+    <a id="directionsBtn" href="#" target="_blank" class="btn btn-primary d-none">
+        Get Directions in Google Maps
+    </a>
+</div>
+
 <script>
 let map;
-let directionsService;
-let directionsRenderer;
-let userMarker;
+let userLocation;
 let towerMarker;
 
 function initMap() {
@@ -73,35 +77,24 @@ function initMap() {
         center: {lat: 12.8797, lng: 121.7740} // Philippines center
     });
 
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
-
     // Detect user location
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             function(position) {
-                let userPos = {
+                userLocation = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
                 };
 
-                map.setCenter(userPos);
+                map.setCenter(userLocation);
                 map.setZoom(14);
 
-                userMarker = new google.maps.Marker({
-                    position: userPos,
+                new google.maps.Marker({
+                    position: userLocation,
                     map: map,
                     title: "Your Location",
-                    icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                    label: {
-                        text: "You are here",
-                        color: "white",
-                        fontWeight: "bold",
-                        fontSize: "12px"
-                    }
+                    icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
                 });
-
-                window.userLocation = userPos; // store for directions
             },
             function(err) {
                 console.warn("Geolocation failed.");
@@ -111,13 +104,15 @@ function initMap() {
 
     const provinceSelect = document.getElementById("provinceSelect");
     const towerSelect = document.getElementById("towerSelect");
+    const directionsBtn = document.getElementById("directionsBtn");
 
     provinceSelect.addEventListener("change", function() {
         const provinceId = this.value;
         towerSelect.innerHTML = "<option value=''>Select Tower</option>";
+        directionsBtn.classList.add("d-none");
+
         if (!provinceId) return;
 
-        // Fetch towers dynamically from DB
         fetch(`/api/towers_by_province/${provinceId}/`)
         .then(res => res.json())
         .then(data => {
@@ -131,13 +126,11 @@ function initMap() {
     });
 
     towerSelect.addEventListener("change", function() {
+        if (!this.value || !userLocation) return;
+
+        const towerPos = JSON.parse(this.value);
+
         if (towerMarker) towerMarker.setMap(null);
-        directionsRenderer.set('directions', null);
-
-        const val = this.value;
-        if (!val || !window.userLocation) return;
-
-        const towerPos = JSON.parse(val);
 
         towerMarker = new google.maps.Marker({
             position: towerPos,
@@ -155,21 +148,15 @@ function initMap() {
         map.setCenter(towerPos);
         map.setZoom(14);
 
-        // Show directions
-        directionsService.route({
-            origin: window.userLocation,
-            destination: towerPos,
-            travelMode: 'DRIVING'
-        }, function(response, status) {
-            if (status === 'OK') {
-                directionsRenderer.setDirections(response);
-            } else {
-                alert('Directions request failed due to ' + status);
-            }
-        });
+        // Show the "Get Directions" button
+        const origin = `${userLocation.lat},${userLocation.lng}`;
+        const destination = `${towerPos.lat},${towerPos.lng}`;
+        directionsBtn.href = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`;
+        directionsBtn.classList.remove("d-none");
     });
 }
 </script>
+
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp38ahRHi7YSU7iDITGyvJSHT6uo8-RFE&callback=initMap&v=weekly" 
         async defer></script>
