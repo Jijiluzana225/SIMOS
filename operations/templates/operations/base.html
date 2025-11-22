@@ -13,30 +13,53 @@
         body {
             font-family: "Inter", sans-serif;
             background-color: #f8f9fa;
-            padding-top: 60px; /* Space for navbar */
+            padding-top: 70px; /* Space for navbar */
         }
 
-        /* Navbar simple */
+        /* Navbar styling */
         .navbar {
-            background-color: rgba(59, 130, 246, 0.9); /* semi-transparent blue */
+            background-color: #1e3a8a; /* Dark blue */
         }
 
-        .navbar .nav-link,
-        .navbar .btn {
-            color: white;
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #ffffff !important;
         }
 
-        .navbar .btn {
-            font-size: 0.85rem;
-            padding: 4px 10px;
+        .navbar-nav .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
         }
 
-        /* Main content with padding and transparent background */
+        /* Hover effect: underline animation */
+        .navbar-nav .nav-link::after {
+            content: "";
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            left: 0;
+            bottom: -4px;
+            background-color: #fbbf24; /* accent color */
+            transition: 0.3s;
+        }
+
+        .navbar-nav .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #fbbf24 !important;
+        }
+
+        /* Main content container */
         .container-main {
             max-width: 1200px;
             margin: 0 auto;
             padding: 30px;
-            background-color: rgba(255, 255, 255, 0.85);
+            background-color: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
@@ -54,6 +77,14 @@
             .container-main {
                 padding: 20px;
             }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-nav .nav-link {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -62,33 +93,38 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'home' %}">SIMOS (Site Monitoring System)</a>
+        <a class="navbar-brand" href="{% url 'home' %}">SIMOS</a> <small style="color: grey;">Site Monitoring System</small>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon" style="color:#fff;"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
+            <!-- Left links -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <!-- Navbar buttons -->
                 <li class="nav-item">
-                    <a class="btn btn-outline-light me-2" href="{% url 'home' %}">Survey Tower</a>
+                    <a class="nav-link" href="{% url 'home' %}">Survey Tower</a>
                 </li>
                 <li class="nav-item">
-                    <a class="btn btn-outline-light me-2" href="{% url 'view_towers' %}">Locate Tower</a>
+                    <a class="nav-link" href="{% url 'view_towers' %}">Locate Tower</a>
                 </li>
             </ul>
 
+            <!-- Right side: User -->
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 {% if user.is_authenticated %}
-                    <li class="nav-item">
+                    <li class="nav-item d-flex align-items-center me-2">
                         <span class="nav-link active">Hello, {{ user.username }}</span>
                     </li>
                     <li class="nav-item">
-                        <form method="POST" action="{% url 'logout' %}">
+                        <form method="POST" action="{% url 'logout' %}" class="d-flex">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-light ms-2">Logout</button>
+                            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
                         </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item me-2">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
                     </li>
                 {% endif %}
             </ul>
