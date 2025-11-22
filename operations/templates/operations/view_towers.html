@@ -8,96 +8,74 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        body {
+        body, html {
+            height: 100%;
+            margin: 0;
             background-color: #f8f9fa;
         }
 
         #map {
             width: 100%;
-            height: 60vh; /* responsive height for mobile */
-            border-radius: 12px;
-            margin-bottom: 20px;
+            height: 80vh;
         }
 
         .form-container {
             background-color: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         label {
             font-weight: 600;
+            font-size: 0.9rem;
         }
 
-        .btn-primary {
-            background: linear-gradient(90deg, #4f46e5, #6366f1);
-            border: none;
-            font-size: 1rem;
-            padding: 0.75rem 1rem;
+        select.form-select {
+            font-size: 0.9rem;
         }
 
-        .btn-primary:hover {
-            background: linear-gradient(90deg, #6366f1, #4f46e5);
-        }
-
-        @media (max-width: 576px) {
-            h2, h3 {
-                font-size: 1.4rem;
-            }
-
-            .form-container {
-                padding: 10px;
-            }
-
-            #map {
-                height: 50vh;
-            }
+        .thumbnail {
+            max-width: 80px;
+            max-height: 80px;
+            display: block;
+            margin-top: 5px;
+            cursor: pointer;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-<div class="container my-4">
-    <h2 class="mb-3 text-center">View Towers by Province</h2>
-
-    <div class="form-container">
-        <form id="filterForm">
-            <div class="row g-2">
-                <div class="col-12 col-sm-6">
-                    <label for="provinceSelect">Province</label>
-                    <select id="provinceSelect" class="form-select">
-                        <option value="">Select Province</option>
-                        {% for province in provinces %}
-                        <option value="{{ province.id }}">{{ province.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-12 col-sm-6">
-                    <label for="towerSelect">Tower</label>
-                    <select id="towerSelect" class="form-select">
-                        <option value="">Select Tower</option>
-                    </select>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <div id="map"></div>
-
-    <div class="text-center mb-3">
-        <a id="directionsBtn" href="#" target="_blank" class="btn btn-primary d-none">
-            Get Directions in Google Maps
-        </a>
+<div class="form-container container-fluid">
+    <div class="row g-2">
+        <div class="col-12 col-md-6">
+            <label for="provinceSelect">Province</label>
+            <select id="provinceSelect" class="form-select">
+                <option value="">Select Province</option>
+                {% for province in provinces %}
+                <option value="{{ province.id }}">{{ province.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-6">
+            <label for="towerSelect">Tower</label>
+            <select id="towerSelect" class="form-select">
+                <option value="">Select Tower</option>
+                <!-- Populated dynamically -->
+            </select>
+        </div>
     </div>
 </div>
 
-<!-- Google Maps JS -->
+<div id="map"></div>
+
 <script>
 let map;
 let userLocation;
-let towerMarker;
+let towerMarkers = [];
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
@@ -114,75 +92,138 @@ function initMap() {
                     lng: position.coords.longitude
                 };
 
-                map.setCenter(userLocation);
-                map.setZoom(14);
-
                 new google.maps.Marker({
                     position: userLocation,
                     map: map,
                     title: "Your Location",
                     icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
                 });
+
+                map.setCenter(userLocation);
+                map.setZoom(12);
             },
-            function(err) {
-                console.warn("Geolocation failed.");
-            },
+            function(err) { console.warn("Geolocation failed."); },
             { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
     }
 
     const provinceSelect = document.getElementById("provinceSelect");
     const towerSelect = document.getElementById("towerSelect");
-    const directionsBtn = document.getElementById("directionsBtn");
 
     provinceSelect.addEventListener("change", function() {
         const provinceId = this.value;
+
         towerSelect.innerHTML = "<option value=''>Select Tower</option>";
-        directionsBtn.classList.add("d-none");
+
+        towerMarkers.forEach(marker => marker.setMap(null));
+        towerMarkers = [];
 
         if (!provinceId) return;
 
-        // Fetch towers dynamically from DB
         fetch(`/api/towers_by_province/${provinceId}/`)
         .then(res => res.json())
         .then(data => {
             data.forEach(tower => {
                 const opt = document.createElement("option");
-                opt.value = JSON.stringify({lat: tower.latitude, lng: tower.longitude});
+                opt.value = JSON.stringify(tower);
                 opt.textContent = tower.name;
                 towerSelect.appendChild(opt);
+
+                const towerPos = { lat: tower.latitude, lng: tower.longitude };
+
+                const marker = new google.maps.Marker({
+                    position: towerPos,
+                    map: map,
+                    title: tower.name,
+                    icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                    label: { text: tower.name, color: "blue", fontWeight: "bold", fontSize: "12px" }
+                });
+
+                let imgHtml = '';
+                if(tower.picture_url){
+                    imgHtml = `<a href="${tower.picture_url}" target="_blank">
+                        <img src="${tower.picture_url}" class="thumbnail" alt="${tower.name}">
+                    </a>`;
+                }
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="font-size:0.9rem;">
+                            <b>${tower.name}</b><br>
+                            Province: ${tower.province}<br>
+                            City/Municipality: ${tower.city}<br>
+                            Barangay: ${tower.barangay}<br>
+                            Lat: ${tower.latitude}<br>
+                            Lng: ${tower.longitude}<br>
+                            ${imgHtml}
+                            <a href="https://www.google.com/maps/dir/?api=1&origin=${userLocation ? userLocation.lat + ',' + userLocation.lng : tower.latitude + ',' + tower.longitude}&destination=${tower.latitude},${tower.longitude}&travelmode=driving" target="_blank" style="color:#4f46e5; font-weight:bold;">Get Directions</a>
+                        </div>
+                    `
+                });
+
+                marker.addListener("click", function() {
+                    infoWindow.open(map, marker);
+                });
+
+                towerMarkers.push(marker);
             });
+
+            if (data.length > 0) {
+                const bounds = new google.maps.LatLngBounds();
+                towerMarkers.forEach(m => bounds.extend(m.getPosition()));
+                map.fitBounds(bounds);
+            }
         });
     });
 
     towerSelect.addEventListener("change", function() {
-        if (!this.value || !userLocation) return;
+        const val = this.value;
+        if (!val) return;
 
-        const towerPos = JSON.parse(this.value);
+        const tower = JSON.parse(val);
 
-        if (towerMarker) towerMarker.setMap(null);
-
-        towerMarker = new google.maps.Marker({
-            position: towerPos,
-            map: map,
-            title: "Tower",
-            icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-            label: {
-                text: "Tower",
-                color: "blue",
-                fontWeight: "bold",
-                fontSize: "12px"
-            }
-        });
+        const towerPos = { lat: tower.latitude, lng: tower.longitude };
 
         map.setCenter(towerPos);
         map.setZoom(14);
 
-        // Show the "Get Directions" button
-        const origin = `${userLocation.lat},${userLocation.lng}`;
-        const destination = `${towerPos.lat},${towerPos.lng}`;
-        directionsBtn.href = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`;
-        directionsBtn.classList.remove("d-none");
+        // Optional: highlight only selected tower
+        towerMarkers.forEach(m => m.setMap(null));
+        const marker = new google.maps.Marker({
+            position: towerPos,
+            map: map,
+            title: tower.name,
+            icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+            label: { text: tower.name, color: "blue", fontWeight: "bold", fontSize: "12px" }
+        });
+
+        let imgHtml = '';
+        if(tower.picture_url){
+            imgHtml = `<a href="${tower.picture_url}" target="_blank">
+                        <img src="${tower.picture_url}" class="thumbnail" alt="${tower.name}">
+                    </a>`;
+        }
+
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div style="font-size:0.9rem;">
+                    <b>${tower.name}</b><br>
+                    Province: ${tower.province}<br>
+                    City/Municipality: ${tower.city}<br>
+                    Barangay: ${tower.barangay}<br>
+                    Lat: ${tower.latitude}<br>
+                    Lng: ${tower.longitude}<br>
+                    ${imgHtml}
+                    <a href="https://www.google.com/maps/dir/?api=1&origin=${userLocation ? userLocation.lat + ',' + userLocation.lng : tower.latitude + ',' + tower.longitude}&destination=${tower.latitude},${tower.longitude}&travelmode=driving" target="_blank" style="color:#4f46e5; font-weight:bold;">Get Directions</a>
+                </div>
+            `
+        });
+
+        marker.addListener("click", function() {
+            infoWindow.open(map, marker);
+        });
+
+        towerMarkers = [marker];
     });
 }
 </script>
