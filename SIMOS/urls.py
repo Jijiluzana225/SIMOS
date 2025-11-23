@@ -16,6 +16,10 @@ urlpatterns = [
     path('api/towers_by_province/<int:province_id>/', views.towers_by_province, name='towers_by_province'),
     path('login/', LoginView.as_view(template_name='operations/login.html'), name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    
+    path("update-construction/<int:pin_id>/", views.update_construction, name="update_construction"),
+
+    
 ]
 
 if settings.DEBUG:

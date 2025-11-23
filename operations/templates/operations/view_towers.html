@@ -180,16 +180,22 @@ function initMap() {
                 <img src="${tower.picture_url}" class="tower-thumb" alt="Tower Image">
             </a>` : "No image";
 
-        const infoWindow = new google.maps.InfoWindow({
-            content: `
-                <div style="font-size: 1rem; max-width: 200px;">
-                    <b>${tower.name}</b><br>
-                    ${imgHtml}<br><br>
-                    <big>${tower.contact ? tower.contact : ''}</big><br>
-                    <small>Lat: ${tower.latitude}<br>Lng: ${tower.longitude}</small>
-                </div>
-            `
-        });
+           const infoWindow = new google.maps.InfoWindow({
+    content: `
+    <div style="font-size: 1rem; max-width: 220px; text-align: center;">
+        <b>${tower.name}</b><br><br>
+        ${imgHtml}<br><br>
+        <big>${tower.contact ? tower.contact : ''}</big><br>
+        <small>Status: ${tower.status}</small><br><br>
+       {% if user_can_update %}
+    <a href="/update-construction/${tower.id}/"" class="btn btn-sm btn-primary"
+       style="display: inline-block; margin: 0 auto;">
+        Update Construction
+    </a>
+{% endif %}
+    </div>
+    `
+});
         infoWindow.open(map, towerMarker);
 
         if (userLocation) {

@@ -26,6 +26,8 @@ class Tower(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
 from django.contrib.auth.models import User
 from django.db import models
 from cloudinary_storage.storage import MediaCloudinaryStorage
@@ -55,6 +57,16 @@ class TowerPin(models.Model):
     remarks = models.TextField(blank=True)
     picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
     picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+
+
+    contruction_remarks = models.TextField(blank=True)
+    construction_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+    construction_picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+
+    instrumentation_remarks = models.TextField(blank=True)
+    instrumentation_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+    instrumentation_picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+    technical_notes = models.TextField(blank=True)
 
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
