@@ -82,11 +82,15 @@ def view_towers(request):
     
     # Check if user can update construction (Construction group)
     user_can_update = request.user.is_authenticated and request.user.groups.filter(name="CONSTRUCTION").exists()
+
+    can_power_up = request.user.is_authenticated and request.user.groups.filter(name="INSTRUMENTATION").exists()
     
     return render(request, "operations/view_towers.html", {
         "provinces": provinces,
         "can_survey": can_survey,
         "user_can_update": user_can_update,
+        "can_power_up": can_power_up,
+
     })
 
 
@@ -137,4 +141,30 @@ def update_construction(request, pin_id):
     })
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import TowerPin
+from .forms import InstrumentationUpdateForm
+def update_instrumentation(request, pin_id):
+    towerpin = get_object_or_404(TowerPin, id=pin_id)
 
+    if request.method == "POST":
+        form = InstrumentationUpdateForm(request.POST, request.FILES, instance=towerpin)
+        if form.is_valid():
+            form.save()
+            return redirect("view_towers")  # adjust to your page
+    else:
+        form = InstrumentationUpdateForm(instance=towerpin)
+
+    return render(request, "operations/instrumentation.html", {
+        "form": form,
+        "towerpin": towerpin
+    })
+
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import TowerPin
+
+def tower_details_view(request, tower_id):
+    tower_pin = get_object_or_404(TowerPin, id=tower_id)
+    return render(request, 'operations/tower_details.html', {'tower_pin': tower_pin})

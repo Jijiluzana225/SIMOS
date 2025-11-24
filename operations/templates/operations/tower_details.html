@@ -1,0 +1,119 @@
+{% extends 'operations/base.html' %}
+
+{% block title %}Tower Details - {{ tower_pin.tower.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h2 class="text-center mb-4 fw-bold">{{ tower_pin.tower.name }}</h2>
+
+    <!-- Tower Info Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <!-- Basic Info -->
+                <div class="col-md-6 col-12">
+                    <p><strong>Province:</strong> {{ tower_pin.province.name }}</p>
+                    <p><strong>City:</strong> {{ tower_pin.city.name }}</p>
+                    <p><strong>Barangay:</strong> {{ tower_pin.barangay.name }}</p>
+                    <p><strong>Latitude:</strong> {{ tower_pin.latitude }}</p>
+                    <p><strong>Longitude:</strong> {{ tower_pin.longitude }}</p>
+                    <p><strong>Contact:</strong> {{ tower_pin.contact }}</p>
+                    <p><strong>Status:</strong> {{ tower_pin.status }}</p>
+                    <p><strong>Created by:</strong> {{ tower_pin.created_by.username}}</p>
+                    <p><strong>Timestamp:</strong> {{ tower_pin.timestamp|date:"M d, Y H:i" }}</p>
+                </div>
+
+                <!-- Tower Images -->
+                <div class="col-md-6 col-12 d-flex flex-wrap justify-content-center align-items-start gap-2">
+                    {% if tower_pin.picture %}
+                    <a href="{{ tower_pin.picture.url }}" target="_blank">
+                        <img src="{{ tower_pin.picture.url }}" class="img-thumbnail" style="max-width: 150px;">
+                    </a>
+                    {% endif %}
+                    {% if tower_pin.picture1 %}
+                    <a href="{{ tower_pin.picture1.url }}" target="_blank">
+                        <img src="{{ tower_pin.picture1.url }}" class="img-thumbnail" style="max-width: 150px;">
+                    </a>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Construction Info -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header fw-bold bg-primary text-white">Construction Details</div>
+        <div class="card-body">
+
+            <p><strong>Remarks:</strong> {{ tower_pin.contruction_remarks }}</p>
+
+            <div class="d-flex flex-wrap gap-2">
+                {% if tower_pin.construction_picture %}
+                <a href="{{ tower_pin.construction_picture.url }}" target="_blank">
+                    <img src="{{ tower_pin.construction_picture.url }}" class="img-thumbnail" style="max-width: 150px;">
+                </a>
+                {% endif %}
+                {% if tower_pin.construction_picture1 %}
+                <a href="{{ tower_pin.construction_picture1.url }}" target="_blank">
+                    <img src="{{ tower_pin.construction_picture1.url }}" class="img-thumbnail" style="max-width: 150px;">
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Instrumentation Info -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header fw-bold bg-success text-white">Instrumentation Details</div>
+        <div class="card-body">
+
+            <p><strong>Remarks:</strong> {{ tower_pin.instrumentation_remarks }}</p>
+            <p><strong>Technical Notes:</strong> {{ tower_pin.technical_notes }}</p>
+
+            <div class="d-flex flex-wrap gap-2">
+                {% if tower_pin.instrumentation_picture %}
+                <a href="{{ tower_pin.instrumentation_picture.url }}" target="_blank">
+                    <img src="{{ tower_pin.instrumentation_picture.url }}" class="img-thumbnail" style="max-width: 150px;">
+                </a>
+                {% endif %}
+                {% if tower_pin.instrumentation_picture1 %}
+                <a href="{{ tower_pin.instrumentation_picture1.url }}" target="_blank">
+                    <img src="{{ tower_pin.instrumentation_picture1.url }}" class="img-thumbnail" style="max-width: 150px;">
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'view_towers' %}" class="btn btn-secondary btn-lg">Back to Towers</a>
+    </div>
+
+</div>
+
+<!-- Optional Custom CSS for Professional Look -->
+<style>
+.card-header {
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+.img-thumbnail {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.img-thumbnail:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+</style>
+
+{% endblock %}

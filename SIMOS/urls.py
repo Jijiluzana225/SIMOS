@@ -18,7 +18,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     
     path("update-construction/<int:pin_id>/", views.update_construction, name="update_construction"),
-
+    path("update-instrumentation/<int:pin_id>/", views.update_instrumentation, name="update_instrumentation"),
+    path('tower-details/<int:tower_id>/', views.tower_details_view, name='tower_details'),
     
 ]
 

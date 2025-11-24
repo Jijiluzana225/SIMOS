@@ -96,3 +96,71 @@ class ConstructionUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['status'].choices = self.STATUS_LIMITED_CHOICES
+from django import forms
+from .models import TowerPin
+
+class InstrumentationUpdateForm(forms.ModelForm):
+
+    # Allowed status options
+    STATUS_LIMITED_CHOICES = [
+        ("Instrumentation", "Instrumentation"),
+        ("Completed", "Completed"),
+        ("Up and Running", "Up and Running"),
+        ("For Repair", "For Repair"),
+        ("Up but Standby", "Up but Standby"),
+    ]
+
+    class Meta:
+        model = TowerPin
+        fields = [
+            "instrumentation_remarks",
+            "instrumentation_picture",
+            "instrumentation_picture1",
+            "technical_notes",
+            "status",
+        ]
+        exclude = [
+            "tower", "province", "city", "barangay",
+            "latitude", "longitude", "contact", "remarks",
+            "picture", "picture1", "created_by", "timestamp",
+            "construction_picture", "construction_picture1",
+            "contruction_remarks"
+        ]
+        widgets = {
+            "instrumentation_remarks": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Enter instrumentation remarks..."
+                }
+            ),
+            "technical_notes": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Enter technical notes..."
+                }
+            ),
+            "instrumentation_picture": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/*"
+                }
+            ),
+            "instrumentation_picture1": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/*"
+                }
+            ),
+            "status": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+        }
+
+    # Correct placement & proper overriding
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['status'].choices = self.STATUS_LIMITED_CHOICES

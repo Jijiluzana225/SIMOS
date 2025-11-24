@@ -31,12 +31,16 @@
     <!-- Map -->
     <div id="map" style="width:100%; height:70vh; border-radius:15px; box-shadow:0 6px 18px rgba(0,0,0,0.15);"></div>
 
-    <!-- Directions Button -->
-    <div class="mt-3 mb-4">
+    <!-- Directions & Details Buttons -->
+    <div class="mt-3 mb-4 d-flex flex-column gap-2">
         <a id="directionsBtn" href="#" target="_blank" class="btn btn-direction d-none">
             🚗 Get Directions in Google Maps
         </a>
+        <a id="detailsBtn" href="#" class="btn btn-outline-primary d-none">
+            📄 View Tower Details
+        </a>
     </div>
+
 </div>
 
 <!-- Custom Styles -->
@@ -68,6 +72,7 @@ select.form-select {
     font-size: 0.95rem;
 }
 
+/* Buttons */
 .btn-direction {
     background: linear-gradient(90deg, #2563eb, #4f46e5);
     border: none;
@@ -82,6 +87,21 @@ select.form-select {
 
 .btn-direction:hover {
     background: linear-gradient(90deg, #4f46e5, #2563eb);
+    box-shadow: 0 0 12px rgba(59,130,246,0.6);
+}
+
+.btn-outline-primary {
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 12px 28px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: #2563eb;
+    color: white;
+    box-shadow: 0 0 12px rgba(37,99,235,0.6);
 }
 
 .tower-thumb {
@@ -136,11 +156,13 @@ function initMap() {
     const provinceSelect = document.getElementById("provinceSelect");
     const towerSelect = document.getElementById("towerSelect");
     const directionsBtn = document.getElementById("directionsBtn");
+    const detailsBtn = document.getElementById("detailsBtn");
 
     provinceSelect.addEventListener("change", function() {
         const provinceId = this.value;
         towerSelect.innerHTML = "<option value=''>Select Tower</option>";
         directionsBtn.classList.add("d-none");
+        detailsBtn.classList.add("d-none");
 
         if (!provinceId) return;
 
@@ -172,37 +194,49 @@ function initMap() {
             title: tower.name
         });
 
-        map.setCenter(towerPos);
-        map.setZoom(15);
-
+        // Restore info window for pin
         let imgHtml = tower.picture_url ?
             `<a href="${tower.picture_url}" target="_blank">
                 <img src="${tower.picture_url}" class="tower-thumb" alt="Tower Image">
             </a>` : "No image";
 
-           const infoWindow = new google.maps.InfoWindow({
-    content: `
-    <div style="font-size: 1rem; max-width: 220px; text-align: center;">
-        <b>${tower.name}</b><br><br>
-        ${imgHtml}<br><br>
-        <big>${tower.contact ? tower.contact : ''}</big><br>
-        <small>Status: ${tower.status}</small><br><br>
-       {% if user_can_update %}
-    <a href="/update-construction/${tower.id}/"" class="btn btn-sm btn-primary"
-       style="display: inline-block; margin: 0 auto;">
-        Update Construction
-    </a>
-{% endif %}
-    </div>
-    `
-});
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+            <div style="font-size: 1rem; max-width: 220px; text-align: center;">
+                <b>${tower.name}</b><br><br>
+                ${imgHtml}<br><br>
+                <big>${tower.contact ? tower.contact : ''}</big><br>
+                <small>Status: ${tower.status}</small><br><br>
+                <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                    {% if user_can_update %}
+                    <a href="/update-construction/${tower.id}/" class="btn btn-sm btn-secondary">
+                        Update Construction
+                    </a>
+                    {% endif %}
+                    {% if can_power_up %}
+                    <a href="/update-instrumentation/${tower.id}/" class="btn btn-sm btn-primary">
+                        Update Instrumentation
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            `
+        });
         infoWindow.open(map, towerMarker);
 
+        map.setCenter(towerPos);
+        map.setZoom(15);
+
+        // Show directions button
         if (userLocation) {
             directionsBtn.href =
                 `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${tower.latitude},${tower.longitude}&travelmode=driving`;
             directionsBtn.classList.remove("d-none");
         }
+
+        // Show details button
+        detailsBtn.href = `/tower-details/${tower.id}/`;
+        detailsBtn.classList.remove("d-none");
     });
 }
 </script>
