@@ -9,17 +9,23 @@ def home(request):
     pins = TowerPin.objects.select_related("tower")
     return render(request, 'operations/home.html', {"pins": pins})
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import TowerPinForm
+from .models import TowerPin
 
 def add_pin(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = TowerPinForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            messages.success(request, "Tower Pin saved successfully!")
+            return redirect("landing_page")  # change to your landing url name
     else:
         form = TowerPinForm()
 
-    return render(request, 'locations/add_pin.html', {"form": form})
+    pins = TowerPin.objects.all()
+    return render(request, "operations/home.html", {"form": form, "pins": pins})
 
 
 from django.shortcuts import render, redirect
@@ -34,6 +40,8 @@ def home(request):
             tower_pin = form.save(commit=False)
             tower_pin.created_by = request.user  # set the current user
             tower_pin.save()
+            messages.success(request, "Tower Pin saved successfully!")
+            return redirect("landing_page")  # change to your landing url name
     else:
         form = TowerPinForm()
 

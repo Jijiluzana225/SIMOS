@@ -1,5 +1,7 @@
 from django import forms
 from .models import TowerPin, Tower
+from .utils import compress_image
+
 
 class TowerPinForm(forms.ModelForm):
 
@@ -40,6 +42,21 @@ class TowerPinForm(forms.ModelForm):
         # ✔ Filter towers: show only towers not yet used in TowerPin
         used_tower_ids = TowerPin.objects.values_list('tower_id', flat=True)
         self.fields['tower'].queryset = Tower.objects.exclude(id__in=used_tower_ids)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if self.cleaned_data.get("picture"):
+            instance.picture = compress_image(self.cleaned_data["picture"])
+
+        if self.cleaned_data.get("picture1"):
+            instance.picture1 = compress_image(self.cleaned_data["picture1"])
+
+        if commit:
+            instance.save()
+        return instance
+    
+    
 
 from django import forms
 from .models import TowerPin
