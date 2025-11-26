@@ -55,17 +55,17 @@ class TowerPin(models.Model):
     longitude = models.FloatField()
     contact = models.CharField(max_length=250, null=True, blank=True)
     remarks = models.TextField(blank=True)
-    picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
-    picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+    picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
+    picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
 
 
     contruction_remarks = models.TextField(blank=True)
-    construction_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
-    construction_picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+    construction_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
+    construction_picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
 
     instrumentation_remarks = models.TextField(blank=True)
-    instrumentation_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
-    instrumentation_picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/')
+    instrumentation_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
+    instrumentation_picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
     technical_notes = models.TextField(blank=True)
 
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
