@@ -51,6 +51,18 @@ class TowerPinForm(forms.ModelForm):
 
         if self.cleaned_data.get("picture1"):
             instance.picture1 = compress_image(self.cleaned_data["picture1"])
+        
+        if self.cleaned_data.get("construction_picture"):
+            instance.construction_picture = compress_image(self.cleaned_data["construction_picture"])
+
+        if self.cleaned_data.get("construction_picture1"):
+            instance.construction_picture1 = compress_image(self.cleaned_data["construction_picture1"])
+        
+        if self.cleaned_data.get("instrumentation_picture"):
+            instance.instrumentation_picture = compress_image(self.cleaned_data["instrumentation_picture"])
+
+        if self.cleaned_data.get("instrumentation_picture1"):
+            instance.instrumentation_picture1 = compress_image(self.cleaned_data["instrumentation_picture1"])
 
         if commit:
             instance.save()
