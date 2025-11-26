@@ -125,6 +125,33 @@ class ConstructionUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['status'].choices = self.STATUS_LIMITED_CHOICES
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if self.cleaned_data.get("picture"):
+            instance.picture = compress_image(self.cleaned_data["picture"])
+
+        if self.cleaned_data.get("picture1"):
+            instance.picture1 = compress_image(self.cleaned_data["picture1"])
+        
+        if self.cleaned_data.get("construction_picture"):
+            instance.construction_picture = compress_image(self.cleaned_data["construction_picture"])
+
+        if self.cleaned_data.get("construction_picture1"):
+            instance.construction_picture1 = compress_image(self.cleaned_data["construction_picture1"])
+        
+        if self.cleaned_data.get("instrumentation_picture"):
+            instance.instrumentation_picture = compress_image(self.cleaned_data["instrumentation_picture"])
+
+        if self.cleaned_data.get("instrumentation_picture1"):
+            instance.instrumentation_picture1 = compress_image(self.cleaned_data["instrumentation_picture1"])
+
+        if commit:
+            instance.save()
+        return instance
+
+    
 from django import forms
 from .models import TowerPin
 
@@ -193,3 +220,28 @@ class InstrumentationUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['status'].choices = self.STATUS_LIMITED_CHOICES
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if self.cleaned_data.get("picture"):
+            instance.picture = compress_image(self.cleaned_data["picture"])
+
+        if self.cleaned_data.get("picture1"):
+            instance.picture1 = compress_image(self.cleaned_data["picture1"])
+        
+        if self.cleaned_data.get("construction_picture"):
+            instance.construction_picture = compress_image(self.cleaned_data["construction_picture"])
+
+        if self.cleaned_data.get("construction_picture1"):
+            instance.construction_picture1 = compress_image(self.cleaned_data["construction_picture1"])
+        
+        if self.cleaned_data.get("instrumentation_picture"):
+            instance.instrumentation_picture = compress_image(self.cleaned_data["instrumentation_picture"])
+
+        if self.cleaned_data.get("instrumentation_picture1"):
+            instance.instrumentation_picture1 = compress_image(self.cleaned_data["instrumentation_picture1"])
+
+        if commit:
+            instance.save()
+        return instance
