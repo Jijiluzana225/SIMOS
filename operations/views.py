@@ -106,7 +106,7 @@ def view_towers(request):
 @login_required(login_url='login')
 # API endpoint to fetch towers for a specific province
 def towers_by_province(request, province_id):
-    towers = TowerPin.objects.filter(province_id=province_id)
+    towers = TowerPin.objects.filter(province_id=province_id).select_related("tower").order_by("tower__name")
     data = [
         {
             "id": t.id,
