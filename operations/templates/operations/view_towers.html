@@ -11,7 +11,7 @@
         <div class="row g-2">
 
             <!-- Province -->
-            <div class="col-md-4 col-12">
+            <div class="col-md-3 col-12">
                 <label for="provinceSelect">Province</label>
                 <select id="provinceSelect" class="form-select">
                     <option value="">Select Province</option>
@@ -22,20 +22,29 @@
             </div>
 
             <!-- City -->
-            <div class="col-md-4 col-12">
+            <div class="col-md-3 col-12">
                 <label for="citySelect">City</label>
                 <select id="citySelect" class="form-select">
                     <option value="">Select City</option>
                 </select>
             </div>
 
+            <!-- Barangay -->
+            <div class="col-md-3 col-12">
+                <label for="barangaySelect">Barangay</label>
+                <select id="barangaySelect" class="form-select">
+                    <option value="">Select Barangay</option>
+                </select>
+            </div>
+
             <!-- Tower -->
-            <div class="col-md-4 col-12">
+            <div class="col-md-3 col-12">
                 <label for="towerSelect">Tower</label>
                 <select id="towerSelect" class="form-select">
                     <option value="">Select Tower</option>
                 </select>
             </div>
+
         </div>
     </div>
 
@@ -53,6 +62,7 @@
     </div>
 
 </div>
+
 {% if messages %}
 <div class="container mb-3">
     {% for message in messages %}
@@ -64,88 +74,16 @@
 </div>
 {% endif %}
 
-<!-- Custom Styles -->
+<!-- Styles -->
 <style>
-.header-title {
-    font-weight: 700;
-    font-size: 1.6rem;
-    color: #374151;
-}
-
-.form-container {
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(10px);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-}
-
-label {
-    font-weight: 600;
-    color: #3b82f6;
-    font-size: 0.95rem;
-}
-
-select.form-select {
-    border-radius: 10px;
-    padding: 10px;
-    border: 1px solid #d1d5db;
-    font-size: 0.95rem;
-}
-
-/* Buttons */
-.btn-direction {
-    background: linear-gradient(90deg, #2563eb, #4f46e5);
-    border: none;
-    border-radius: 50px;
-    padding: 14px 30px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: white;
-    width: 100%;
-    transition: all 0.3s ease;
-}
-
-.btn-direction:hover {
-    background: linear-gradient(90deg, #4f46e5, #2563eb);
-    box-shadow: 0 0 12px rgba(59,130,246,0.6);
-}
-
-.btn-outline-primary {
-    border-radius: 50px;
-    font-weight: 600;
-    padding: 12px 28px;
-    width: 100%;
-    transition: all 0.3s ease;
-}
-
-.btn-outline-primary:hover {
-    background-color: #2563eb;
-    color: white;
-    box-shadow: 0 0 12px rgba(37,99,235,0.6);
-}
-
-.tower-thumb {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-top: 8px;
-    border: 2px solid #3b82f6;
-}
-
-@media (max-width: 576px) {
-    #map {
-        height: 75vh;
-    }
-    .header-title {
-        font-size: 1.4rem;
-        margin-top: 6px;
-    }
-}
+.header-title { font-weight: 700; font-size: 1.6rem; color: #374151; }
+.form-container { background: white; padding:20px; border-radius:15px; box-shadow:0 6px 18px rgba(0,0,0,0.15); }
+label { font-weight: 600; color:#3b82f6; }
+.btn-direction { background: linear-gradient(90deg,#2563eb,#4f46e5); color:white; border-radius:50px; }
+.tower-thumb { width:100px; height:100px; object-fit:cover; border-radius:8px; }
 </style>
 
-<!-- Google Maps JS -->
+<!-- Google Map + Dropdown Logic -->
 <script>
 let map, userLocation, towerMarker;
 
@@ -155,83 +93,92 @@ function initMap() {
         center: {lat: 12.8797, lng: 121.7740}
     });
 
+    /* Try get user location */
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            function(position) {
-                userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-
+            pos => {
+                userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                 new google.maps.Marker({
                     position: userLocation,
                     map: map,
                     icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
                     title: "You Are Here"
                 });
-
                 map.setCenter(userLocation);
                 map.setZoom(13);
-            },
-            function() {}
+            }
         );
     }
 
     const provinceSelect = document.getElementById("provinceSelect");
     const citySelect = document.getElementById("citySelect");
+    const barangaySelect = document.getElementById("barangaySelect");
     const towerSelect = document.getElementById("towerSelect");
 
     const directionsBtn = document.getElementById("directionsBtn");
     const detailsBtn = document.getElementById("detailsBtn");
 
-    /* ------------------------------------------
-        1️⃣ LOAD CITIES WHEN PROVINCE IS SELECTED
-    -------------------------------------------*/
-    provinceSelect.addEventListener("change", function() {
+    /* --------------------------
+       1️⃣ PROVINCE → CITIES
+    ---------------------------- */
+    provinceSelect.addEventListener("change", () => {
         citySelect.innerHTML = "<option value=''>Select City</option>";
+        barangaySelect.innerHTML = "<option value=''>Select Barangay</option>";
         towerSelect.innerHTML = "<option value=''>Select Tower</option>";
 
-        const provinceId = this.value;
-        if (!provinceId) return;
+        if (!provinceSelect.value) return;
 
-        fetch(`/api/cities_by_province/${provinceId}/`)
+        fetch(`/api/cities_by_province/${provinceSelect.value}/`)
         .then(res => res.json())
         .then(data => {
             data.forEach(city => {
-                const opt = document.createElement("option");
-                opt.value = city.id;
-                opt.textContent = city.name;
-                citySelect.appendChild(opt);
+                citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
             });
         });
     });
 
-    /* ------------------------------------------
-        2️⃣ LOAD TOWERS WHEN CITY IS SELECTED
-    -------------------------------------------*/
-    citySelect.addEventListener("change", function() {
+    /* --------------------------
+       2️⃣ CITY → BARANGAYS
+    ---------------------------- */
+    citySelect.addEventListener("change", () => {
+        barangaySelect.innerHTML = "<option value=''>Select Barangay</option>";
         towerSelect.innerHTML = "<option value=''>Select Tower</option>";
-        const cityId = this.value;
 
-        if (!cityId) return;
+        if (!citySelect.value) return;
 
-        fetch(`/api/towers_by_city/${cityId}/`)
+        fetch(`/api/barangays_by_city/${citySelect.value}/`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(brgy => {
+                barangaySelect.innerHTML += `<option value="${brgy.id}">${brgy.name}</option>`;
+            });
+        });
+    });
+
+    /* --------------------------
+       3️⃣ BARANGAY → TOWERS
+    ---------------------------- */
+    barangaySelect.addEventListener("change", () => {
+        towerSelect.innerHTML = "<option value=''>Select Tower</option>";
+
+        if (!barangaySelect.value) return;
+
+        fetch(`/api/towers_by_barangay/${barangaySelect.value}/`)
         .then(res => res.json())
         .then(data => {
             data.forEach(tower => {
-                const opt = document.createElement("option");
-                opt.value = JSON.stringify(tower);
-                opt.textContent = tower.name;
-                towerSelect.appendChild(opt);
+                towerSelect.innerHTML += `<option value='${JSON.stringify(tower)}'>${tower.name}</option>`;
             });
         });
     });
 
-    /* ------------------------------------------
-        3️⃣ SHOW MAP + INFO WHEN TOWER IS SELECTED
-    -------------------------------------------*/
+    /* --------------------------
+       4️⃣ SELECT TOWER → SHOW MAP
+    ---------------------------- */
     towerSelect.addEventListener("change", function() {
-        const val = this.value;
-        if (!val) return;
+        if (!this.value) return;
 
-        const tower = JSON.parse(val);
+        const tower = JSON.parse(this.value);
         const towerPos = { lat: tower.latitude, lng: tower.longitude };
 
         if (towerMarker) towerMarker.setMap(null);
@@ -244,54 +191,51 @@ function initMap() {
         });
 
         let imgHtml = tower.picture_url ?
-            `<a href="${tower.picture_url}" target="_blank">
-                <img src="${tower.picture_url}" class="tower-thumb" alt="Tower Image">
-            </a>` : "No image";
+            `<a href="${tower.picture_url}" target="_blank"><img src="${tower.picture_url}" class="tower-thumb"></a>` :
+            "No image";
 
-       const infoWindow = new google.maps.InfoWindow({
+        const infoWindow = new google.maps.InfoWindow({
             content: `
-            <div style="font-size: 1rem; max-width: 220px; text-align: center;">
-                <b>${tower.name}</b><br><br>
-                ${imgHtml}<br><br>
-                <big>${tower.contact ? tower.contact : ''}</big><br>
-                <small>Status: ${tower.status}</small><br><br>
-                <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                {% if user_can_update %}
-                    <a href="/update-construction/${tower.id}/" class="btn btn-sm btn-secondary">
-                        Update Construction
-                    </a>
+                <div style="text-align:center">
+                    <b>${tower.name}</b><br><br>
+                    ${imgHtml}<br><br>
+                    <small>Status: ${tower.status}</small><br><br>
+                    {% if can_bicto %}
+                        <a href="/update-bicto/${tower.id}/" class="btn btn-sm btn-info">Update BICTO</a><br><br>
                     {% endif %}
-                {% if can_electric %}
-                    <a href="/update-electrical/${tower.id}/" class="btn btn-sm btn-warning">
-                        Update Electrical
-                    </a>
-                {% endif %}
-                {% if can_power_up %}
-                    <a href="/update-instrumentation/${tower.id}/" class="btn btn-sm btn-primary">
-                        Update Instrumentation
-                    </a>
-                {% endif %}
+
+                    {% if user_can_update %}
+                        <a href="/update-construction/${tower.id}/" class="btn btn-sm btn-secondary">Update Construction</a><br><br>
+                    {% endif %}
+
+                    {% if can_electric %}
+                        <a href="/update-electrical/${tower.id}/" class="btn btn-sm btn-warning">Update Electrical</a><br><br>
+                    {% endif %}
+
+                    {% if can_power_up %}
+                        <a href="/update-instrumentation/${tower.id}/" class="btn btn-sm btn-primary">Update Instrumentation</a>
+                    {% endif %}
                 </div>
-            </div>
             `
         });
 
         infoWindow.open(map, towerMarker);
-
         map.setCenter(towerPos);
         map.setZoom(15);
 
+        /* Directions */
         if (userLocation) {
             directionsBtn.href =
-                `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${tower.latitude},${tower.longitude}&travelmode=driving`;
+                `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${tower.latitude},${tower.longitude}`;
             directionsBtn.classList.remove("d-none");
         }
 
+        /* Details Button */
         detailsBtn.href = `/tower-details/${tower.id}/`;
         detailsBtn.classList.remove("d-none");
     });
 }
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp38ahRHi7YSU7iDITGyvJSHT6uo8-RFE&callback=initMap&v=weekly" async defer></script>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp38ahRHi7YSU7iDITGyvJSHT6uo8-RFE&callback=initMap&v=weekly" async defer></script>
 {% endblock %}

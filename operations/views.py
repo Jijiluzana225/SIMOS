@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
+from .models import Province, City, Barangay, TowerPin
 from django.shortcuts import render, redirect
-from .models import TowerPin, Tower
+
 from .forms import TowerPinForm
 @login_required(login_url='login')
 def home(request):
@@ -93,6 +94,7 @@ def view_towers(request):
 
     can_power_up = request.user.is_authenticated and request.user.groups.filter(name="INSTRUMENTATION").exists()
     can_electric = request.user.is_authenticated and request.user.groups.filter(name="ELECTRICAL").exists()
+    can_bicto = request.user.is_authenticated and request.user.groups.filter(name="BICTO").exists()
     
     return render(request, "operations/view_towers.html", {
         "provinces": provinces,
@@ -100,6 +102,7 @@ def view_towers(request):
         "user_can_update": user_can_update,
         "can_power_up": can_power_up,
         "can_electric": can_electric,
+        "can_bicto": can_bicto,
 
     })
 
@@ -161,6 +164,29 @@ def landing_page(request):
     Display the landing page with login/dashboard button.
     """
     return render(request, "operations/landing.html")
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import TowerPin
+from .forms import BictoUpdateForm
+@login_required(login_url='login')
+def update_bicto(request, pin_id):
+    towerpin = get_object_or_404(TowerPin, id=pin_id)
+
+    if request.method == "POST":
+        form = BictoUpdateForm(request.POST, request.FILES, instance=towerpin)
+        if form.is_valid():
+            form.save()
+            return redirect("view_towers")  # adjust to your page
+    else:
+        form = BictoUpdateForm(instance=towerpin)
+
+    return render(request, "operations/bicto.html", {
+        "form": form,
+        "towerpin": towerpin
+    })
+
 
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -262,20 +288,41 @@ def cities_by_province(request, province_id):
     ]
     return JsonResponse(data, safe=False)
 
+@login_required(login_url='login')
+def barangays_by_city(request, city_id):
+    barangays = Barangay.objects.filter(city_id=city_id).order_by("name")
+    data = [
+        {"id": b.id, "name": b.name}
+        for b in barangays
+    ]
+    return JsonResponse(data, safe=False)
+
+
 
 @login_required(login_url='login')
-def towers_by_city(request, city_id):
-    towers = TowerPin.objects.filter(city_id=city_id).select_related("tower").order_by("tower__name")
+def barangays_by_city(request, city_id):
+    barangays = Barangay.objects.filter(city_id=city_id).order_by("name")
     data = [
-        {
+        {"id": b.id, "name": b.name}
+        for b in barangays
+    ]
+    return JsonResponse(data, safe=False)
+
+
+@login_required(login_url='login')
+def towers_by_barangay(request, barangay_id):
+    towers = TowerPin.objects.filter(barangay_id=barangay_id)
+
+    data = []
+    for t in towers:
+        data.append({
             "id": t.id,
             "name": t.tower.name,
             "latitude": t.latitude,
             "longitude": t.longitude,
             "contact": t.contact,
-            "picture_url": t.picture.url,
             "status": t.status,
-        }
-        for t in towers
-    ]
+            "picture_url": t.picture.url if t.picture else None,
+        })
+
     return JsonResponse(data, safe=False)
