@@ -244,10 +244,10 @@ from django.contrib.auth.decorators import login_required
 from .models import Province, City, TowerPin
 
 
-@login_required(login_url='login')
-def view_towers(request):
-    provinces = Province.objects.all().order_by("name")
-    return render(request, "operations/view_towers.html", {"provinces": provinces})
+# @login_required(login_url='login')
+# def view_towers(request):
+#     provinces = Province.objects.all().order_by("name")
+#     return render(request, "operations/view_towers.html", {"provinces": provinces})
 
 
 @login_required(login_url='login')

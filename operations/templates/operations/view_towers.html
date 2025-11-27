@@ -248,13 +248,30 @@ function initMap() {
                 <img src="${tower.picture_url}" class="tower-thumb" alt="Tower Image">
             </a>` : "No image";
 
-        const infoWindow = new google.maps.InfoWindow({
+       const infoWindow = new google.maps.InfoWindow({
             content: `
             <div style="font-size: 1rem; max-width: 220px; text-align: center;">
                 <b>${tower.name}</b><br><br>
                 ${imgHtml}<br><br>
                 <big>${tower.contact ? tower.contact : ''}</big><br>
                 <small>Status: ${tower.status}</small><br><br>
+                <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                {% if user_can_update %}
+                    <a href="/update-construction/${tower.id}/" class="btn btn-sm btn-secondary">
+                        Update Construction
+                    </a>
+                    {% endif %}
+                {% if can_electric %}
+                    <a href="/update-electrical/${tower.id}/" class="btn btn-sm btn-warning">
+                        Update Electrical
+                    </a>
+                {% endif %}
+                {% if can_power_up %}
+                    <a href="/update-instrumentation/${tower.id}/" class="btn btn-sm btn-primary">
+                        Update Instrumentation
+                    </a>
+                {% endif %}
+                </div>
             </div>
             `
         });
