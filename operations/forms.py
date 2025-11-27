@@ -6,8 +6,7 @@ from .utils import compress_image
 class TowerPinForm(forms.ModelForm):
 
     STATUS_LIMITED_CHOICES = [
-        ("Scheduled", "Scheduled"),
-        ("Rescheduled", "Rescheduled"),
+   
         ("Surveyed", "Surveyed"),
     ]
 
@@ -147,6 +146,75 @@ class ConstructionUpdateForm(forms.ModelForm):
         if self.cleaned_data.get("instrumentation_picture1"):
             instance.instrumentation_picture1 = compress_image(self.cleaned_data["instrumentation_picture1"])
 
+        if commit:
+            instance.save()
+        return instance
+    
+class ElectricianUpdateForm(forms.ModelForm):
+
+    # Only allow these two statuses
+    STATUS_LIMITED_CHOICES = [
+        ("Electrified", "Electrified"),
+        ("Not Electrified", "Not Electrified"),
+     
+    ]
+
+    class Meta:
+        model = TowerPin
+        fields = [
+            "electrician_remarks",
+            "electrician_picture",
+            "electrician_picture1",
+            "status",
+        ]
+        exclude = [
+            "tower", "province", "city", "barangay",
+            "latitude", "longitude", "contact", "remarks",
+            "picture", "picture1", "created_by", "timestamp"
+        ]
+        widgets = {
+            "electrician_remarks": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Enter Electrician remarks..."
+                }
+            ),
+            "electrician_picture": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/*"
+                }
+            ),
+            "electrician_picture1": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/*"
+                }
+            ),
+            "status": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+        }
+
+    # Correctly override status choices
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['status'].choices = self.STATUS_LIMITED_CHOICES
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+
+        
+        if self.cleaned_data.get("electrician_picture"):
+            instance.electrician_picture = compress_image(self.cleaned_data["electrician_picture"])
+
+        if self.cleaned_data.get("electrician_picture1"):
+            instance.electrician_picture1 = compress_image(self.cleaned_data["electrician_picture1"])
+        
         if commit:
             instance.save()
         return instance

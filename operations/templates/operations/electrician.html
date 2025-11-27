@@ -1,0 +1,18 @@
+{% extends 'operations/base.html' %}
+
+{% block title %}Update Electrical - | {{ towerpin.tower.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-3">Update Electrical | {{ towerpin.tower.name }}</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="p-3 bg-white shadow rounded">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Save Update</button>
+        <a href="{% url 'view_towers' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

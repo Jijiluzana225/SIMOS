@@ -9,7 +9,9 @@
     <!-- Filter Panel -->
     <div class="form-container mb-3">
         <div class="row g-2">
-            <div class="col-md-6 col-12">
+
+            <!-- Province -->
+            <div class="col-md-4 col-12">
                 <label for="provinceSelect">Province</label>
                 <select id="provinceSelect" class="form-select">
                     <option value="">Select Province</option>
@@ -19,7 +21,16 @@
                 </select>
             </div>
 
-            <div class="col-md-6 col-12">
+            <!-- City -->
+            <div class="col-md-4 col-12">
+                <label for="citySelect">City</label>
+                <select id="citySelect" class="form-select">
+                    <option value="">Select City</option>
+                </select>
+            </div>
+
+            <!-- Tower -->
+            <div class="col-md-4 col-12">
                 <label for="towerSelect">Tower</label>
                 <select id="towerSelect" class="form-select">
                     <option value="">Select Tower</option>
@@ -164,19 +175,44 @@ function initMap() {
     }
 
     const provinceSelect = document.getElementById("provinceSelect");
+    const citySelect = document.getElementById("citySelect");
     const towerSelect = document.getElementById("towerSelect");
+
     const directionsBtn = document.getElementById("directionsBtn");
     const detailsBtn = document.getElementById("detailsBtn");
 
+    /* ------------------------------------------
+        1️⃣ LOAD CITIES WHEN PROVINCE IS SELECTED
+    -------------------------------------------*/
     provinceSelect.addEventListener("change", function() {
-        const provinceId = this.value;
+        citySelect.innerHTML = "<option value=''>Select City</option>";
         towerSelect.innerHTML = "<option value=''>Select Tower</option>";
-        directionsBtn.classList.add("d-none");
-        detailsBtn.classList.add("d-none");
 
+        const provinceId = this.value;
         if (!provinceId) return;
 
-        fetch(`/api/towers_by_province/${provinceId}/`)
+        fetch(`/api/cities_by_province/${provinceId}/`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(city => {
+                const opt = document.createElement("option");
+                opt.value = city.id;
+                opt.textContent = city.name;
+                citySelect.appendChild(opt);
+            });
+        });
+    });
+
+    /* ------------------------------------------
+        2️⃣ LOAD TOWERS WHEN CITY IS SELECTED
+    -------------------------------------------*/
+    citySelect.addEventListener("change", function() {
+        towerSelect.innerHTML = "<option value=''>Select Tower</option>";
+        const cityId = this.value;
+
+        if (!cityId) return;
+
+        fetch(`/api/towers_by_city/${cityId}/`)
         .then(res => res.json())
         .then(data => {
             data.forEach(tower => {
@@ -188,6 +224,9 @@ function initMap() {
         });
     });
 
+    /* ------------------------------------------
+        3️⃣ SHOW MAP + INFO WHEN TOWER IS SELECTED
+    -------------------------------------------*/
     towerSelect.addEventListener("change", function() {
         const val = this.value;
         if (!val) return;
@@ -204,7 +243,6 @@ function initMap() {
             title: tower.name
         });
 
-        // Restore info window for pin
         let imgHtml = tower.picture_url ?
             `<a href="${tower.picture_url}" target="_blank">
                 <img src="${tower.picture_url}" class="tower-thumb" alt="Tower Image">
@@ -217,34 +255,21 @@ function initMap() {
                 ${imgHtml}<br><br>
                 <big>${tower.contact ? tower.contact : ''}</big><br>
                 <small>Status: ${tower.status}</small><br><br>
-                <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                    {% if user_can_update %}
-                    <a href="/update-construction/${tower.id}/" class="btn btn-sm btn-secondary">
-                        Update Construction
-                    </a>
-                    {% endif %}
-                    {% if can_power_up %}
-                    <a href="/update-instrumentation/${tower.id}/" class="btn btn-sm btn-primary">
-                        Update Instrumentation
-                    </a>
-                    {% endif %}
-                </div>
             </div>
             `
         });
+
         infoWindow.open(map, towerMarker);
 
         map.setCenter(towerPos);
         map.setZoom(15);
 
-        // Show directions button
         if (userLocation) {
             directionsBtn.href =
                 `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${tower.latitude},${tower.longitude}&travelmode=driving`;
             directionsBtn.classList.remove("d-none");
         }
 
-        // Show details button
         detailsBtn.href = `/tower-details/${tower.id}/`;
         detailsBtn.classList.remove("d-none");
     });

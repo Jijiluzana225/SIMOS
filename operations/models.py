@@ -39,6 +39,8 @@ class TowerPin(models.Model):
         ("Rescheduled", "Rescheduled"),
         ("Surveyed", "Surveyed"),
         ("On Going Construction", "On Going Construction"),
+        ("Electrified", "Electrified"),
+        ("Not Electrified", "Not Electrified"),
         ("Instrumentation", "Instrumentation"),
         ("Completed", "Completed"),
         ("Up and Running", "Up and Running"),
@@ -62,6 +64,12 @@ class TowerPin(models.Model):
     contruction_remarks = models.TextField(blank=True)
     construction_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
     construction_picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
+
+    electrician_remarks = models.TextField(blank=True)
+    electrician_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
+    electrician_picture1 = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)
+
+
 
     instrumentation_remarks = models.TextField(blank=True)
     instrumentation_picture = models.ImageField(storage=MediaCloudinaryStorage(), upload_to='SIMOS/', blank=True, null=True)

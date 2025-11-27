@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 from .models import TowerPin, Tower
 from .forms import TowerPinForm
-
+@login_required(login_url='login')
 def home(request):
     pins = TowerPin.objects.select_related("tower")
     return render(request, 'operations/home.html', {"pins": pins})
@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import TowerPinForm
 from .models import TowerPin
-
+@login_required(login_url='login')
 def add_pin(request):
     if request.method == "POST":
         form = TowerPinForm(request.POST, request.FILES)
@@ -31,7 +31,7 @@ def add_pin(request):
 from django.shortcuts import render, redirect
 from .models import TowerPin
 from .forms import TowerPinForm
-
+@login_required(login_url='login')
 def home(request):
     pins = TowerPin.objects.all()
     if request.method == "POST":
@@ -92,12 +92,14 @@ def view_towers(request):
     user_can_update = request.user.is_authenticated and request.user.groups.filter(name="CONSTRUCTION").exists()
 
     can_power_up = request.user.is_authenticated and request.user.groups.filter(name="INSTRUMENTATION").exists()
+    can_electric = request.user.is_authenticated and request.user.groups.filter(name="ELECTRICAL").exists()
     
     return render(request, "operations/view_towers.html", {
         "provinces": provinces,
         "can_survey": can_survey,
         "user_can_update": user_can_update,
         "can_power_up": can_power_up,
+        "can_electric": can_electric,
 
     })
 
@@ -122,6 +124,38 @@ def towers_by_province(request, province_id):
     return JsonResponse(data, safe=False)
 
 @login_required(login_url='login')
+def cities_by_province(request, province_id):
+    cities = City.objects.filter(province_id=province_id).order_by("name")
+    data = [
+        {
+            "id": c.id,
+            "name": c.name,
+        }
+        for c in cities
+    ]
+    return JsonResponse(data, safe=False)
+
+
+@login_required(login_url='login')
+def towers_by_city(request, city_id):
+    towers = TowerPin.objects.filter(city_id=city_id).select_related("tower").order_by("tower__name")
+    data = [
+        {
+            "id": t.id,
+            "name": t.tower.name,
+            "latitude": t.latitude,
+            "longitude": t.longitude,
+            "contact": t.contact,
+            "picture_url": t.picture.url if t.picture else None,
+            "status": t.status
+        }
+        for t in towers
+    ]
+    return JsonResponse(data, safe=False)
+
+
+
+@login_required(login_url='login')
 def landing_page(request):
     """
     Display the landing page with login/dashboard button.
@@ -132,6 +166,7 @@ def landing_page(request):
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import TowerPin
 from .forms import ConstructionUpdateForm
+@login_required(login_url='login')
 def update_construction(request, pin_id):
     towerpin = get_object_or_404(TowerPin, id=pin_id)
 
@@ -152,6 +187,7 @@ def update_construction(request, pin_id):
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import TowerPin
 from .forms import InstrumentationUpdateForm
+@login_required(login_url='login')
 def update_instrumentation(request, pin_id):
     towerpin = get_object_or_404(TowerPin, id=pin_id)
 
@@ -173,6 +209,73 @@ def update_instrumentation(request, pin_id):
 from django.shortcuts import render, get_object_or_404
 from .models import TowerPin
 
+@login_required(login_url='login')
 def tower_details_view(request, tower_id):
     tower_pin = get_object_or_404(TowerPin, id=tower_id)
     return render(request, 'operations/tower_details.html', {'tower_pin': tower_pin})
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import TowerPin
+from .forms import ElectricianUpdateForm
+@login_required(login_url='login')
+def update_electrician(request, pin_id):
+    towerpin = get_object_or_404(TowerPin, id=pin_id)
+
+    if request.method == "POST":
+        form = ElectricianUpdateForm(request.POST, request.FILES, instance=towerpin)
+        if form.is_valid():
+            form.save()
+            return redirect("view_towers")  # adjust to your page
+    else:
+        form = ElectricianUpdateForm(instance=towerpin)
+
+    return render(request, "operations/electrician.html", {
+        "form": form,
+        "towerpin": towerpin
+    })
+
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Province, City, TowerPin
+
+
+@login_required(login_url='login')
+def view_towers(request):
+    provinces = Province.objects.all().order_by("name")
+    return render(request, "operations/view_towers.html", {"provinces": provinces})
+
+
+@login_required(login_url='login')
+def cities_by_province(request, province_id):
+    cities = City.objects.filter(province_id=province_id).order_by("name")
+    data = [
+        {
+            "id": c.id,
+            "name": c.name,
+        }
+        for c in cities
+    ]
+    return JsonResponse(data, safe=False)
+
+
+@login_required(login_url='login')
+def towers_by_city(request, city_id):
+    towers = TowerPin.objects.filter(city_id=city_id).select_related("tower").order_by("tower__name")
+    data = [
+        {
+            "id": t.id,
+            "name": t.tower.name,
+            "latitude": t.latitude,
+            "longitude": t.longitude,
+            "contact": t.contact,
+            "picture_url": t.picture.url,
+            "status": t.status,
+        }
+        for t in towers
+    ]
+    return JsonResponse(data, safe=False)
