@@ -1,0 +1,174 @@
+{% extends 'operations/base.html' %}
+
+{% block title %}Dashboard - SIMOS{% endblock %}
+
+{% block content %}
+<div class="container-main my-4">
+    <h2 class="text-center mb-4">📡 Tower Map</h2>
+
+    <div id="map" class="mb-4" style="width:100%; height:65vh; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.15);"></div>
+
+    <!-- Form Container -->
+    <div class="form-container p-4 bg-white rounded shadow-sm">
+        
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+          <div class="mb-3">
+    {{ form.tower.label_tag }}
+    {{ form.tower }}
+</div>
+
+<div class="mb-3">
+    {{ form.province.label_tag }}
+    {{ form.province }}
+</div>
+
+<div class="mb-3">
+    {{ form.city.label_tag }}
+    {{ form.city }}
+</div>
+
+<div class="mb-3">
+    {{ form.barangay.label_tag }}
+    {{ form.barangay }}
+</div>
+
+<div class="mb-3">
+    {{ form.latitude.label_tag }}
+    {{ form.latitude }}
+</div>
+
+<div class="mb-3">
+    {{ form.longitude.label_tag }}
+    {{ form.longitude }}
+</div>
+
+<div class="mb-3">
+    {{ form.contact.label_tag }}
+    {{ form.contact }}
+</div>
+<div class="mb-3">
+    {{ form.remarks.label_tag }}
+    {{ form.remarks }}
+</div>
+
+<div class="mb-3">
+    {{ form.picture.label_tag }}
+    {{ form.picture }}
+</div>
+
+<div class="mb-3">
+    {{ form.picture1.label_tag }}
+    {{ form.picture1 }}
+</div>
+<div class="mb-3">
+    {{ form.status.label_tag }}
+    {{ form.status }}
+</div>
+
+{% if messages %}
+<div class="container mb-3">
+    {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+<!-- Google Maps JS -->
+<script>
+function initMap() {
+    var map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 6,
+        center: {lat: 12.8797, lng: 121.7740}
+    });
+
+    // Existing pins
+    var pins = [
+        {% for p in pins %}
+        {
+            tower: "{{ p.tower.name|escapejs }}",
+            lat: {{ p.latitude }},
+            lng: {{ p.longitude }},
+            remarks: "{{ p.remarks|default:''|escapejs }}",
+            picture: "{% if p.picture %}{{ p.picture.url }}{% endif %}"
+        },
+        {% endfor %}
+    ];
+
+    pins.forEach(function(pin) {
+        var marker = new google.maps.Marker({
+            position: {lat: pin.lat, lng: pin.lng},
+            map: map,
+            icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+        });
+
+        var content =
+            "<b style='font-size:16px'>" + pin.tower + "</b><br>" +
+            "<small>Lat:</small> " + pin.lat + "<br>" +
+            "<small>Lng:</small> " + pin.lng + "<br>" +
+          (pin.picture 
+    ? "<a href='" + pin.picture + "' target='_blank'>" +
+        "<img src='" + pin.picture + "' width='140' " +
+        "style='margin-top:8px;border-radius:8px;cursor:pointer;' " +
+        "title='Click to view full image'>" +
+      "</a><br>"
+    : ""
+)
+ +
+            "<p style='margin-top:6px;font-size:14px;'>" + pin.remarks + "</p>";
+
+        var info = new google.maps.InfoWindow({ content: content });
+        marker.addListener("click", function () { info.open(map, marker); });
+    });
+
+    // Detect device location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var userPos = { lat: position.coords.latitude, lng: position.coords.longitude };
+            map.setCenter(userPos);
+            map.setZoom(14);
+
+            window.deviceMarker = new google.maps.Marker({
+                position: userPos,
+                map: map,
+                icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            });
+
+            var info = new google.maps.InfoWindow({
+                content: "<b>You are here</b><br><small>Lat:</small> " + userPos.lat + "<br><small>Lng:</small> " + userPos.lng
+            });
+
+            window.deviceMarker.addListener("click", () => info.open(map, window.deviceMarker));
+
+            // Auto-fill form
+            document.getElementById("id_latitude").value = userPos.lat;
+            document.getElementById("id_longitude").value = userPos.lng;
+        });
+    }
+
+    // Click map to auto-fill
+    map.addListener("click", function(event) {
+        var lat = event.latLng.lat();
+        var lng = event.latLng.lng();
+        document.getElementById("id_latitude").value = lat;
+        document.getElementById("id_longitude").value = lng;
+
+        if (window.clickMarker) window.clickMarker.setMap(null);
+        window.clickMarker = new google.maps.Marker({
+            position: event.latLng,
+            map: map,
+            icon: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+        });
+    });
+}
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp38ahRHi7YSU7iDITGyvJSHT6uo8-RFE&callback=initMap&v=weekly"
+        async defer></script>
+{% endblock %}

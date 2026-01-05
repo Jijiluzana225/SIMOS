@@ -10,6 +10,17 @@ def home(request):
     return render(request, 'operations/home.html', {"pins": pins})
 
 from django.shortcuts import render, redirect
+from .models import TowerPin, Tower
+from .forms import TowerPinForm
+@login_required(login_url='login')
+def home_newtech(request):
+    pins = TowerPin.objects.select_related("tower")
+    return render(request, 'operations/home_newtech.html', {"pins": pins})
+
+
+
+
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import TowerPinForm
 from .models import TowerPin

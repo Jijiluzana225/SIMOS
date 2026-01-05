@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.landing_page, name='landing_page'),
     path('survey/', views.home, name='home'),
+    path('sitemap/', views.home_newtech, name='home_newtech'),
     path('view-towers/', views.view_towers, name='view_towers'),
     path('location/', views.location, name='location'),
     path('add/', views.add_pin, name='add_pin'),
