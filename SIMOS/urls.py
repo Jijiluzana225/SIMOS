@@ -18,6 +18,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='operations/login.html'), name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     
+    path("update-bicto/<int:pin_id>/", views.update_bicto, name="update_bicto"),
     path("update-construction/<int:pin_id>/", views.update_construction, name="update_construction"),
     path("update-electrical/<int:pin_id>/", views.update_electrician, name="update_electrical"),
 
@@ -25,7 +26,8 @@ urlpatterns = [
     path('tower-details/<int:tower_id>/', views.tower_details_view, name='tower_details'),
     
     path("api/cities_by_province/<int:province_id>/", views.cities_by_province, name="cities_by_province"),
-    path("api/towers_by_city/<int:city_id>/", views.towers_by_city, name="towers_by_city"),
+    path("api/barangays_by_city/<int:city_id>/", views.barangays_by_city, name="barangays_by_city"),
+    path("api/towers_by_barangay/<int:barangay_id>/", views.towers_by_barangay, name="towers_by_barangay"),
 
 ]
 

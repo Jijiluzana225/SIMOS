@@ -72,6 +72,92 @@ class TowerPinForm(forms.ModelForm):
 from django import forms
 from .models import TowerPin
 
+
+
+class BictoUpdateForm(forms.ModelForm):
+
+    STATUS_LIMITED_CHOICES = [
+        ("Surveyed", "Surveyed"),
+    ]
+
+    class Meta:
+        model = TowerPin
+        fields = [
+            "latitude",
+            "longitude",
+            "contact",
+            "remarks",
+            "picture",
+            "picture1",
+            "status",
+        ]
+
+        widgets = {
+            "latitude": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Latitude",
+                    
+                }
+            ),
+            "longitude": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Longitude",
+                  
+                }
+            ),
+            "contact": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter contact person...",
+                }
+            ),
+            "remarks": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Enter remarks...",
+                }
+            ),
+            "picture": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/*",
+                }
+            ),
+            "picture1": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/*",
+                }
+            ),
+            "status": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["status"].choices = self.STATUS_LIMITED_CHOICES
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if self.cleaned_data.get("picture"):
+            instance.picture = compress_image(self.cleaned_data["picture"])
+
+        if self.cleaned_data.get("picture1"):
+            instance.picture1 = compress_image(self.cleaned_data["picture1"])
+
+        if commit:
+            instance.save()
+
+        return instance
+
+
 class ConstructionUpdateForm(forms.ModelForm):
 
     # Only allow these two statuses
