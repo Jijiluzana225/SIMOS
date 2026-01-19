@@ -8,6 +8,7 @@ class TowerPinForm(forms.ModelForm):
     STATUS_LIMITED_CHOICES = [
    
         ("Surveyed", "Surveyed"),
+        ("ToBeSurveyed", "To Be Surveyed"),
     ]
 
     class Meta:
@@ -73,11 +74,11 @@ from django import forms
 from .models import TowerPin
 
 
-
 class BictoUpdateForm(forms.ModelForm):
 
     STATUS_LIMITED_CHOICES = [
         ("Surveyed", "Surveyed"),
+        ("ToBeSurveyed", "To Be Surveyed"),
     ]
 
     class Meta:

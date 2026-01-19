@@ -96,36 +96,51 @@ function initMap() {
             lat: {{ p.latitude }},
             lng: {{ p.longitude }},
             remarks: "{{ p.remarks|default:''|escapejs }}",
-            picture: "{% if p.picture %}{{ p.picture.url }}{% endif %}"
+            picture: "{% if p.picture %}{{ p.picture.url }}{% endif %}",
+            status: "{{ p.get_status_display|escapejs }}"
         },
         {% endfor %}
     ];
 
     pins.forEach(function(pin) {
-        var marker = new google.maps.Marker({
-            position: {lat: pin.lat, lng: pin.lng},
-            map: map,
-            icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-        });
 
-        var content =
-            "<b style='font-size:16px'>" + pin.tower + "</b><br>" +
-            "<small>Lat:</small> " + pin.lat + "<br>" +
-            "<small>Lng:</small> " + pin.lng + "<br>" +
-          (pin.picture 
-    ? "<a href='" + pin.picture + "' target='_blank'>" +
-        "<img src='" + pin.picture + "' width='140' " +
-        "style='margin-top:8px;border-radius:8px;cursor:pointer;' " +
-        "title='Click to view full image'>" +
-      "</a><br>"
-    : ""
-)
- +
-            "<p style='margin-top:6px;font-size:14px;'>" + pin.remarks + "</p>";
+    var markerColor = "blue";
 
-        var info = new google.maps.InfoWindow({ content: content });
-        marker.addListener("click", function () { info.open(map, marker); });
+    if (pin.status === "To Be Surveyed") {
+        markerColor = "yellow";
+    }
+
+    var marker = new google.maps.Marker({
+        position: { lat: pin.lat, lng: pin.lng },
+        map: map,
+        icon: "http://maps.google.com/mapfiles/ms/icons/" + markerColor + "-dot.png",
     });
+
+    var content =
+        "<b style='font-size:16px'>" + pin.tower + "</b><br>" +
+        "<small>Lat:</small> " + pin.lat + "<br>" +
+        "<small>Lng:</small> " + pin.lng + "<br>" +
+        (pin.picture 
+            ? "<a href='" + pin.picture + "' target='_blank'>" +
+                "<img src='" + pin.picture + "' width='140' " +
+                "style='margin-top:8px;border-radius:8px;cursor:pointer;'>" +
+              "</a><br>" +
+              "<div style='text-align:center;margin:6px 0;'>" +
+                "<span style='display:inline-block;padding:4px 10px;" +
+                "border-radius:8px;background:#0d6efd;color:#fff;" +
+                "font-size:12px;font-weight:600;'>" +
+                pin.status +
+                "</span>" +
+              "</div>"
+            : ""
+        ) +
+        "<p style='margin-top:6px;font-size:14px;'>" + pin.remarks + "</p>";
+
+    var info = new google.maps.InfoWindow({ content: content });
+    marker.addListener("click", function () {
+        info.open(map, marker);
+    });
+});
 
     // Detect device location
     if (navigator.geolocation) {

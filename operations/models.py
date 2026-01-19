@@ -38,6 +38,7 @@ class TowerPin(models.Model):
         ("Scheduled", "Scheduled"),
         ("Rescheduled", "Rescheduled"),
         ("Surveyed", "Surveyed"),
+        ("ToBeSurveyed", "To Be Surveyed"),
         ("On Going Construction", "On Going Construction"),
         ("Electrified", "Electrified"),
         ("Not Electrified", "Not Electrified"),
@@ -79,9 +80,9 @@ class TowerPin(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     status = models.CharField(
-        max_length=50,
+        max_length=150,
         choices=STATUS_CHOICES,
-        default="Surveyed"
+        default="ToBeSurveyed"
     )
 
     timestamp = models.DateTimeField(auto_now_add=True)
