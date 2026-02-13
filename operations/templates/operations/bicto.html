@@ -9,10 +9,63 @@
 
     <form method="POST" enctype="multipart/form-data" class="p-3 bg-white shadow rounded">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <div class="mb-3">
+            {{ form.latitude.label_tag }}
+            {{ form.latitude }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.longitude.label_tag }}
+            {{ form.longitude }}
+            <!-- Button below longitude -->
+            <button type="button" class="btn btn-secondary mt-2" id="get-coordinates">
+                Get Coordinates
+            </button>
+        </div>
+
+        <div class="mb-3">
+            {{ form.contact.label_tag }}
+            {{ form.contact }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.remarks.label_tag }}
+            {{ form.remarks }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.picture.label_tag }}
+            {{ form.picture }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.picture1.label_tag }}
+            {{ form.picture1 }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.status.label_tag }}
+            {{ form.status }}
+        </div>
 
         <button type="submit" class="btn btn-primary">Save Update</button>
         <a href="{% url 'view_towers' %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+
+<script>
+document.getElementById('get-coordinates').addEventListener('click', function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            document.getElementById("id_latitude").value = position.coords.latitude.toFixed(6);
+            document.getElementById("id_longitude").value = position.coords.longitude.toFixed(6);
+        }, function(error) {
+            alert("Unable to retrieve your location.");
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+});
+</script>
 {% endblock %}
